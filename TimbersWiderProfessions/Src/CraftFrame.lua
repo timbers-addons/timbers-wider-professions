@@ -149,7 +149,7 @@ function main:FetchCrafts(filterWord)
             TimbersWiderProfessions_DB.knownTradeskills[skillId] = 0
         end
 
-        if not (showOnlyAvailable and numAvailable == 0) and not (showOnlyTrain and (rankEfficiency == "trivial" or not main.canRankUp)) and not (showOnlyNewPetSkills and (rankEfficiency ~= "none" or canLearnState == "never")) then
+        if not (showOnlyAvailable and numAvailable == 0) and not (showOnlyTrain and rankEfficiency == "trivial") and not (showOnlyNewPetSkills and (rankEfficiency ~= "none" or canLearnState == "never")) then
             local reagents = {}
             for reagentIndex = 1, GetCraftNumReagents(index) do
                 local reagentName, reagentTexture, reagentCount, playerReagentCount = GetCraftReagentInfo(index, reagentIndex)
@@ -237,6 +237,70 @@ function main:FetchCrafts(filterWord)
         main:CleanSkillDetails()
     end
 
+    -- Inject unlearned enchanting recipes from hardcoded spell list
+    if CraftIsEnchanting() and ShowUnlearnedTradeCrafts:GetChecked() then
+        local spellList = main:GetEnchantingList()
+        if spellList then
+            -- Build set of learned recipe spell IDs
+            local learnedSpellIds = {}
+            for _, skills in pairs(skillInfoDict) do
+                for _, skill in ipairs(skills) do
+                    if skill.recipeSpellId then
+                        learnedSpellIds[skill.recipeSpellId] = true
+                    end
+                end
+            end
+
+            for category, skills in pairs(spellList) do
+                for spellId, _ in pairs(skills) do
+                    if not learnedSpellIds[spellId] then
+                        local localizedSpellName, _, spellIcon = GetSpellInfo(tonumber(spellId))
+                        if localizedSpellName then
+                            local displayName, skillType = main:FindEnchantType(localizedSpellName, nil)
+
+                            if TimbersWiderProfessions_DB.showEnchantingCategories and main.enchantingCategoryMap and main.enchantingCategoryMap[localizedSpellName] then
+                                skillType = main.enchantingCategoryMap[localizedSpellName]
+                            elseif not skillType or skillType == BINDING_HEADER_MISC then
+                                skillType = BINDING_HEADER_MISC
+                            end
+
+                            local hasPassedFilter = true
+                            if filterWord then
+                                hasPassedFilter = string.find(string.lower(localizedSpellName), filterWord)
+                            end
+
+                            if hasPassedFilter then
+                                if skillInfoDict[skillType] == nil then
+                                    skillInfoDict[skillType] = {}
+                                    table.insert(headersList, skillType)
+                                end
+
+                                table.insert(skillInfoDict[skillType], {
+                                    name = localizedSpellName,
+                                    displayName = displayName or localizedSpellName,
+                                    description = nil,
+                                    texture = spellIcon,
+                                    link = nil,
+                                    rarityColor = "|c7c7c7c7c",
+                                    rankEfficiency = "trivial",
+                                    numAvailable = 0,
+                                    reagents = {},
+                                    category = skillType,
+                                    index = -1,
+                                    position = #skillInfoDict[skillType] + 1,
+                                    profession = "Enchanting",
+                                    skillId = "unlearned_".. spellId,
+                                    recipeSpellId = spellId,
+                                    isUnlearned = true,
+                                })
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
     return skillInfoDict, headersList
 end
 
@@ -258,6 +322,7 @@ main.CRAFT_SHOW = function(self, event, ...)
         portraitIcon = BEAST_TRAINING_ICON_ID
         ShowTrainTradeCrafts:Hide()
         ShowOnlyAvailableTradeCrafts:Hide()
+        ShowUnlearnedTradeCrafts:Hide()
         local hasPet = UnitExists("pet")
         if hasPet then
             ShowNewPetSkillsTradeCrafts:Show()
@@ -284,6 +349,7 @@ main.CRAFT_SHOW = function(self, event, ...)
         ShowTrainTradeCrafts:Show()
         ShowNewPetSkillsTradeCrafts:Hide()
         ShowOnlyAvailableTradeCrafts:Show()
+        ShowUnlearnedTradeCrafts:Show()
         CraftTradeDetailReagents:SetText(MINIMAP_TRACKING_VENDOR_REAGENT.. ":")
     end
 

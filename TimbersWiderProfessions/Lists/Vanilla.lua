@@ -369,6 +369,161 @@ local enchantSpellList = {
     }
 }
 
+local cookingSpellList = {
+    ["Agility"] = {
+        ["33288"] = "Warp Burger",
+        ["33293"] = "Grilled Mudfish",
+        ["18240"] = "Grilled Squid",
+    },
+    ["Intellect"] = {
+        ["22761"] = "Runn Tum Tuber Surprise",
+    },
+    ["Attack Power"] = {
+        ["33284"] = "Ravager Dog",
+    },
+    ["Spell Critical Strike"] = {
+        ["43707"] = "Skullfish Soup",
+    },
+    ["Spell Damage"] = {
+        ["38868"] = "Crunchy Serpent",
+        ["33294"] = "Poached Bluefish",
+        ["33286"] = "Blackened Basilisk",
+    },
+    ["Healing"] = {
+        ["33295"] = "Golden Fish Sticks",
+    },
+    ["Spirit"] = {
+        ["18242"] = "Hot Smoked Bass",
+    },
+    ["Strength"] = {
+        ["33287"] = "Roasted Clefthoof",
+        ["24801"] = "Smoked Desert Dumplings",
+    },
+    ["Stamina"] = {
+        ["42302"] = "Fisherman's Feast",
+        ["33296"] = "Spicy Crawdad",
+        ["38867"] = "Mok'Nathal Shortribs",
+        ["45022"] = "Hot Apple Cider",
+        ["33289"] = "Talbuk Steak",
+        ["36210"] = "Clam Bar",
+        ["33291"] = "Feltail Delight",
+        ["33279"] = "Buzzard Bites",
+        ["25659"] = "Dirge's Kickin' Chimaerok Chops",
+        ["18246"] = "Mightfish Steak",
+        ["18239"] = "Cooked Glossy Mightfish",
+        ["15933"] = "Monster Omelet",
+        ["22480"] = "Tender Wolf Steak",
+        ["15915"] = "Spiced Chili Crab",
+        ["15910"] = "Heavy Kodo Stew",
+        ["21175"] = "Spider Sausage",
+        ["15855"] = "Roast Raptor",
+        ["15863"] = "Carrion Surprise",
+        ["4094"] = "Barbecued Buzzard Wing",
+        ["7213"] = "Giant Clam Scorcho",
+        ["15861"] = "Jungle Stew",
+        ["15856"] = "Hot Wolf Ribs",
+        ["3400"] = "Soothing Turtle Bisque",
+        ["15865"] = "Mystery Stew",
+        ["3399"] = "Tasty Lion Steak",
+        ["3398"] = "Hot Lion Chops",
+        ["3376"] = "Curiously Tasty Omelet",
+        ["15853"] = "Lean Wolf Steak",
+        ["6500"] = "Goblin Deviled Clams",
+        ["24418"] = "Heavy Crocolisk Stew",
+        ["3373"] = "Crocolisk Gumbo",
+        ["3397"] = "Big Bear Steak",
+        ["3377"] = "Gooey Spider Cake",
+        ["6419"] = "Lean Venison",
+        ["6418"] = "Crispy Lizard Tail",
+        ["2549"] = "Seasoned Wolf Kabob",
+        ["2547"] = "Redridge Goulash",
+        ["3372"] = "Murloc Fin Soup",
+        ["3370"] = "Crocolisk Steak",
+        ["2546"] = "Dry Pork Ribs",
+        ["2544"] = "Crab Cake",
+        ["3371"] = "Blood Sausage",
+        ["6416"] = "Strider Stew",
+        ["2542"] = "Goretusk Liver Pie",
+        ["2541"] = "Coyote Steak",
+        ["6499"] = "Boiled Clams",
+        ["6415"] = "Fillet of Frenzy",
+        ["21144"] = "Egg Nog",
+        ["6414"] = "Roasted Kodo Meat",
+        ["2795"] = "Beer Basted Boar Ribs",
+        ["2539"] = "Spiced Wolf Meat",
+        ["6412"] = "Kaldorei Spider Kabob",
+        ["15935"] = "Crispy Bat Wing",
+        ["8604"] = "Herb Baked Egg",
+        ["21143"] = "Gingerbread Cookie",
+        ["37836"] = "Spice Bread",
+    },
+    ["Stamina + MP5"] = {
+        ["33292"] = "Blackened Sporefish",
+    },
+    ["MP5"] = {
+        ["18243"] = "Nightfin Soup",
+        ["25954"] = "Sagefish Delight",
+        ["25704"] = "Smoked Sagefish",
+    },
+    ["HP5"] = {
+        ["18244"] = "Poached Sunscale Salmon",
+    },
+    ["Hit"] = {
+        ["43765"] = "Spicy Hot Talbuk",
+    },
+    ["Resistance"] = {
+        ["43761"] = "Broiled Bloodfin",
+    },
+    ["Food"] = {
+        ["42305"] = "Hot Buttered Trout",
+        ["42296"] = "Stewed Trout",
+        ["33290"] = "Blackened Trout",
+        ["18245"] = "Lobster Stew",
+        ["18238"] = "Spotted Yellowtail",
+        ["18247"] = "Baked Salmon",
+        ["6501"] = "Clam Chowder",
+        ["18241"] = "Filet of Redgill",
+        ["20916"] = "Mithril Headed Trout",
+        ["7828"] = "Rockscale Cod",
+        ["7755"] = "Bristle Whisker Catfish",
+        ["20626"] = "Undermine Clam Chowder",
+        ["2548"] = "Succulent Pork Ribs",
+        ["6417"] = "Dig Rat Stew",
+        ["2545"] = "Cooked Crab Claw",
+        ["2543"] = "Westfall Stew",
+        ["7827"] = "Rainbow Fin Albacore",
+        ["7754"] = "Loch Frenzy Delight",
+        ["7753"] = "Longjaw Mud Snapper",
+        ["8607"] = "Smoked Bear Meat",
+        ["6413"] = "Scorpid Surprise",
+        ["7752"] = "Slitherskin Mackerel",
+        ["2538"] = "Charred Wolf Meat",
+        ["7751"] = "Brilliant Smallfish",
+        ["2540"] = "Roasted Boar Meat",
+    },
+    ["Pet"] = {
+        ["33285"] = "Sporeling Snack",
+        ["43772"] = "Kibler's Bits",
+    },
+    ["Misc"] = {
+        ["46684"] = "Charred Bear Kabobs",
+        ["46688"] = "Juicy Bear Burger",
+        ["28267"] = "Crunchy Spider Surprise",
+        ["33278"] = "Bat Bites",
+        ["33277"] = "Roasted Moongraze Tenderloin",
+        ["33276"] = "Lynx Steak",
+    },
+    ["Special"] = {
+        ["43779"] = "Delicious Chocolate Cake",
+        ["43758"] = "Stormchops",
+        ["45695"] = "Captain Rumsey's Lager",
+        ["15906"] = "Dragonbreath Chili",
+        ["8238"] = "Savory Deviate Delight",
+        ["9513"] = "Thistle Tea",
+        ["13028"] = "Goldthorn Tea",
+    },
+}
+
 -- A collection of ids for recipes of vaarious categories.
 local fishSkillIdsList = {
     ["4592"] = "1", -- Longjaw Mud Snapper,
@@ -415,6 +570,10 @@ end
 
 function main:GetEnchantingList()
     return enchantSpellList
+end
+
+function main:GetCookingList()
+    return cookingSpellList
 end
 
 function main:createPetSkillsCategoryMap()

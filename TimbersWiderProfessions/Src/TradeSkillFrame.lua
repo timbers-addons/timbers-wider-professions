@@ -35,7 +35,7 @@ function main:FetchTradeSkills(filterWord)
         local skillType = recentHeader
         if skillType == nil then return skillInfoDict, headersList end
     
-        if rankEfficiencyOrHeader ~= "header" and not (showOnlyAvailable and numAvailable == 0) and not (showOnlyTrain and (rankEfficiencyOrHeader == "trivial" or not main.canRankUp)) then
+        if rankEfficiencyOrHeader ~= "header" and not (showOnlyAvailable and numAvailable == 0) and not (showOnlyTrain and rankEfficiencyOrHeader == "trivial") then
             local skillLink = GetTradeSkillItemLink(index)
             local skillId = nil
             local recipeSpellId = nil
@@ -57,8 +57,8 @@ function main:FetchTradeSkills(filterWord)
 
             if profession == ALCHEMY_NAME and TimbersWiderProfessions_DB.showAlchemyCategories then--and skillType == "Consumable" then
                 skillType = main.alchemyCategoryMap[skillName] or skillType
-            elseif profession == COOKING_NAME and TimbersWiderProfessions_DB.showCookingCategories and main:isFishRecipe(skillId) then
-                skillType = main.ClientLocale["Seafood"]
+            elseif profession == COOKING_NAME and TimbersWiderProfessions_DB.showCookingCategories then
+                skillType = main.cookingCategoryMap[skillName] or skillType
             end
             
             local rarityColor = "|c".. (string.match(skillLink, "|c(%x+)|H") or "7c7c7c7c")
@@ -161,6 +161,80 @@ function main:FetchTradeSkills(filterWord)
         main:CleanSkillDetails()
     end
 
+    -- Inject unlearned recipes from hardcoded spell lists
+    if ShowUnlearnedTradeCrafts:GetChecked() then
+        local spellList = nil
+        local categoryMap = nil
+        if profession == ALCHEMY_NAME then
+            spellList = main:GetAlchemyList()
+            categoryMap = main.alchemyCategoryMap
+        elseif profession == COOKING_NAME then
+            spellList = main:GetCookingList()
+            categoryMap = main.cookingCategoryMap
+        end
+
+        if spellList then
+            -- Build set of learned recipe spell IDs
+            local learnedSpellIds = {}
+            for _, skills in pairs(skillInfoDict) do
+                for _, skill in ipairs(skills) do
+                    if skill.recipeSpellId then
+                        learnedSpellIds[skill.recipeSpellId] = true
+                    end
+                end
+            end
+
+            for category, skills in pairs(spellList) do
+                for spellId, _ in pairs(skills) do
+                    if not learnedSpellIds[spellId] then
+                        local localizedSpellName, _, spellIcon = GetSpellInfo(tonumber(spellId))
+                        if localizedSpellName then
+                            local skillType = recentHeader or ""
+                            if categoryMap and categoryMap[localizedSpellName] then
+                                skillType = categoryMap[localizedSpellName]
+                            elseif category == "Misc" then
+                                skillType = BINDING_HEADER_MISC
+                            elseif main.ClientLocale[category] then
+                                skillType = main.ClientLocale[category]
+                            end
+
+                            local hasPassedFilter = true
+                            if filterWord then
+                                hasPassedFilter = string.find(string.lower(localizedSpellName), filterWord)
+                            end
+
+                            if hasPassedFilter then
+                                if skillInfoDict[skillType] == nil then
+                                    skillInfoDict[skillType] = {}
+                                    table.insert(headersList, skillType)
+                                end
+
+                                table.insert(skillInfoDict[skillType], {
+                                    name = localizedSpellName,
+                                    displayName = localizedSpellName,
+                                    description = nil,
+                                    texture = spellIcon,
+                                    link = nil,
+                                    rarityColor = "|c7c7c7c7c",
+                                    rankEfficiency = "trivial",
+                                    numAvailable = 0,
+                                    reagents = {},
+                                    category = skillType,
+                                    index = -1,
+                                    position = #skillInfoDict[skillType] + 1,
+                                    profession = profession,
+                                    skillId = "unlearned_".. spellId,
+                                    recipeSpellId = spellId,
+                                    isUnlearned = true,
+                                })
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
     return skillInfoDict, headersList
 end
 
@@ -169,6 +243,12 @@ main.TRADE_SKILL_SHOW = function(self, event, ...)
     ShowTrainTradeCrafts:Show()
     ShowNewPetSkillsTradeCrafts:Hide()
     ShowOnlyAvailableTradeCrafts:Show()
+    local tradeSkillName = select(1, GetTradeSkillLine())
+    if tradeSkillName == ALCHEMY_NAME or tradeSkillName == COOKING_NAME then
+        ShowUnlearnedTradeCrafts:Show()
+    else
+        ShowUnlearnedTradeCrafts:Hide()
+    end
     
     main:CleanSkillDetails()
     main:CleanStolenButtons()

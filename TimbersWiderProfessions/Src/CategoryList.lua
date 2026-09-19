@@ -1,6 +1,11 @@
 local main = TimbersWiderProfessionsAddon
 
 function main:GetPetCategory(spellName)
+    -- Guard: createPetSkillsCategoryMap is only initialized for Hunters
+    if type(main.createPetSkillsCategoryMap) ~= "table" then
+        return PET_AGGRESSIVE -- Default category
+    end
+
     if main.createPetSkillsCategoryMap[spellName] == nil then
         return PET_AGGRESSIVE -- Default category
     end
@@ -29,6 +34,25 @@ function main:createAlchemyCategoryMap()
     end
 
     main.alchemyCategoryMap = categoryMap
+end
+
+function main:createCookingCategoryMap()
+    local categoryMap = {}
+
+    for category, skills in pairs(main:GetCookingList()) do
+        for skillId, _ in pairs(skills) do
+            if category ~= "Misc" then
+                local localizedSpellName = GetSpellInfo(tonumber(skillId))
+                if localizedSpellName then
+                    categoryMap[localizedSpellName] = main.ClientLocale[category]
+                end
+            end
+        end
+    end
+
+    main.cookingCategoryMap = categoryMap
+
+    cookingSpellList = nil
 end
 
 function main:createEnchantingCategoryMap()

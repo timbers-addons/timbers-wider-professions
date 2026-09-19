@@ -1,5 +1,8 @@
 package-as: TimbersWiderProfessions
+move-folders:
+    TimbersWiderProfessions/TimbersWiderProfessions: TimbersWiderProfessions
 
 ignore:
     - .pkgmeta
     - Docs
+    - README.md

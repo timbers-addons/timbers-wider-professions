@@ -1,0 +1,17 @@
+name: Timber's Wider Professions
+summary: An updated version of zeratoruspatokus's "Wider Professions" addon to make it wider, and include some new functionality.
+logo: Docs/logo.png
+license: gpl-3.0-only
+curseforge:
+    project_name: Timber's Wider Professions
+    slug: timbers-wider-professions
+    logo: Docs/logo.png
+    summary: An updated version of zeratoruspatokus's "Wider Professions" addon to make it wider, and include some new functionality.
+    project_distribution: allow
+    source_code: not-public
+    automatic_packaging: no-automatic-packaging
+wago:
+    display_name: Timber's Wider Professions
+    url_slug: timbers-wider-professions
+    summary: An updated version of zeratoruspatokus's "Wider Professions" addon to make it wider, and include some new functionality.
+    thumbnail: Docs/logo.png

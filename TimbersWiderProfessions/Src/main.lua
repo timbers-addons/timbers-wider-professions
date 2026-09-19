@@ -94,6 +94,7 @@ main.ADDON_LOADED = function(self, event, addon)
     main.ClientLocale = main.Locales[GetLocale()] or main.Locales["enUS"] -- The default locale is English.
     -- TODO: Load these only when needed.
     main:createAlchemyCategoryMap()
+    main:createCookingCategoryMap()
     main:createEnchantingCategoryMap()
     local playerClass_InEnglish = select(2, UnitClass("player"))
     isHunter = playerClass_InEnglish == "HUNTER" and buildVersion < 40000
@@ -292,6 +293,35 @@ function main:FetchSkillData()
         end
     end
 
+    -- Sort skills within each category by orange skill level (ascending).
+    if main.SkillLevels then
+        for _, header in ipairs(headersList) do
+            local skills = skillInfoDict[header]
+            local hasLevels = false
+            for _, skill in ipairs(skills) do
+                if skill.recipeSpellId and main.SkillLevels[tonumber(skill.recipeSpellId)] then
+                    hasLevels = true
+                    break
+                end
+            end
+            if hasLevels then
+                table.sort(skills, function(a, b)
+                    local aLevel = a.recipeSpellId and main.SkillLevels[tonumber(a.recipeSpellId)]
+                    local bLevel = b.recipeSpellId and main.SkillLevels[tonumber(b.recipeSpellId)]
+                    local aOrange = aLevel and aLevel[1] or 0
+                    local bOrange = bLevel and bLevel[1] or 0
+                    if aOrange ~= bOrange then
+                        return aOrange > bOrange
+                    end
+                    return a.name < b.name
+                end)
+                for i, skill in ipairs(skills) do
+                    skill.position = i
+                end
+            end
+        end
+    end
+
     -- If main.selectedSkill is nil, select the first one
     if main.selectedSkill == nil then
         for _, header in ipairs(headersList) do
@@ -354,6 +384,7 @@ function main:CraftTradeSkillFrame()
     main:AddShowOnlyAvailableCheckBox()
     main:AddShowTrainCheckBox()
     main:AddShowNewPetSkillsCheckBox()
+    main:AddShowUnlearnedCheckBox()
     -- main:AddCraftButton()
     main:AddRankBar()
 
@@ -775,7 +806,9 @@ function main:CraftTradeSkillFrame()
             self.newHighlight:SetSize(textWidth +25, 30)
 
             self:GetFontString():SetPoint("LEFT", 20, 0)
-            if TimbersWiderProfessions_DB.skillColorMode == "difficulty" then
+            if skill.isUnlearned then
+                self.normalFont:SetTextColor(0.5, 0.5, 0.5, 0.5)
+            elseif TimbersWiderProfessions_DB.skillColorMode == "difficulty" then
                 local color = GetDifficultyTextColor(skill.rankEfficiency)
                 self.normalFont:SetTextColor(color[1], color[2], color[3])
             elseif TimbersWiderProfessions_DB.skillColorMode == "rarity" and skill.rarityColor ~= "|c7c7c7c7c" then
@@ -785,8 +818,8 @@ function main:CraftTradeSkillFrame()
             end
             self:SetNormalFontObject(self.normalFont)
             self.type = "skill"
-            self:SetSelected(main.selectedSkill ~= nil and main.selectedSkill.skillId == skill.skillId)
-            if skill.rankEfficiency == "trivial" or not main.canRankUp then -- Trivial is always returned in English.
+            self:SetSelected(not skill.isUnlearned and main.selectedSkill ~= nil and main.selectedSkill.skillId == skill.skillId)
+            if skill.isUnlearned or skill.rankEfficiency == "trivial" then
                 self.efficiencyIcon:Hide()
             else
                 self.efficiencyIcon:SetTexture("Interface\\AddOns\\TimbersWiderProfessions\\Assets\\".. skill.rankEfficiency)
@@ -794,7 +827,7 @@ function main:CraftTradeSkillFrame()
             end
 
             -- Show skill levels in list (right-aligned, color-coded)
-            if TimbersWiderProfessions_DB.showSkillLevelsInList and skill.recipeSpellId and main.SkillLevels then
+            if not skill.isUnlearned and TimbersWiderProfessions_DB.showSkillLevelsInList and skill.recipeSpellId and main.SkillLevels then
                 local levels = main.SkillLevels[tonumber(skill.recipeSpellId)]
                 if levels then
                     local levelsText = string.format(
@@ -812,21 +845,25 @@ function main:CraftTradeSkillFrame()
 
             self:Show()
             self.link = skill.link
-            
-            self:SetScript("OnClick", function(self2)
-                if IsModifiedClick("CHATLINK") then return end
-                CraftTradeSkillFrame.searchBar:ClearFocus()
-                for i = 1, MAX_SKILLS_CREATABLE do
-                    _G["CraftTradeSkillButton"..i]:SetSelected(false)
-                end
-                main:SetSkillDetails(skill)
-                self2:SetSelected(true)
-                self2.newHighlight:Hide()
-                TimbersWiderProfessions_DB.knownTradeskills[skill.skillId] = 0
-            end)
+
+            if skill.isUnlearned then
+                self:SetScript("OnClick", nil)
+            else
+                self:SetScript("OnClick", function(self2)
+                    if IsModifiedClick("CHATLINK") then return end
+                    CraftTradeSkillFrame.searchBar:ClearFocus()
+                    for i = 1, MAX_SKILLS_CREATABLE do
+                        _G["CraftTradeSkillButton"..i]:SetSelected(false)
+                    end
+                    main:SetSkillDetails(skill)
+                    self2:SetSelected(true)
+                    self2.newHighlight:Hide()
+                    TimbersWiderProfessions_DB.knownTradeskills[skill.skillId] = 0
+                end)
+            end
 
             -- Handle new skill highlights
-            self.newHighlight:SetShown(isNew)
+            self.newHighlight:SetShown(not skill.isUnlearned and isNew)
         end
         
         skillButton.SetSelected = function(self, selected)
@@ -1489,6 +1526,43 @@ function main:AddShowNewPetSkillsCheckBox()
     end)
 end
 
+function main:AddShowUnlearnedCheckBox()
+    local checkbox = CreateFrame("CheckButton", "ShowUnlearnedTradeCrafts", CraftTradeSkillFrame, "UICheckButtonTemplate")
+    checkbox:SetSize(20, 20)
+
+    checkbox.text = checkbox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    checkbox.text:SetPoint("TOPLEFT", checkbox, "TOPLEFT", 20, -3.5)
+    checkbox.text:SetText(main.ClientLocale.ShowUnlearned)
+    checkbox.text:SetFont("Fonts\\FRIZQT__.TTF", 10)
+    checkbox:SetPoint("RIGHT", ShowTrainTradeCrafts, "RIGHT", -checkbox.text:GetStringWidth() -310, 0)
+    checkbox:SetChecked(false)
+    checkbox:Hide()
+
+    checkbox:SetScript("OnClick", function(self)
+        if self:GetChecked() then
+            PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
+        else
+            PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+        end
+
+        main:FetchSkillData()
+        main:RefreshList()
+    end)
+
+    checkbox:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine(main.ClientLocale.ShowUnlearned, 1, 1, 1)
+        if C_CVar.GetCVarBool("showNewbieTips") == true then
+            GameTooltip:AddLine(main.ClientLocale.ShowUnlearnedTooltip, nil, nil, nil, true)
+        end
+        GameTooltip:Show()
+    end)
+
+    checkbox:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+    end)
+end
+
 function main:StealButton(button)
     if button == nil then return end
     button:SetParent(CraftTradeSkillFrame)
@@ -1625,11 +1699,8 @@ main:SetScript("OnEvent", main.OnEvent)
 hooksecurefunc("HandleModifiedItemClick", function(link)
     if not link then return end
     if not CraftTradeSkillFrame:IsShown() then return end
+    if not CraftTradeSkillFrame.searchBar:HasFocus() then return end
     if ChatFrame1EditBox:HasFocus() then return end
-    -- If Auction House frame is open, but search bar is not focused, do nothing
-    if AuctionFrame and AuctionFrame:IsShown() and not CraftTradeSkillFrame.searchBar:HasFocus() then
-        return
-    end
     local itemName = GetItemInfo(link)
     if itemName then
         -- Focus on the search bar and set its text to the item name
