@@ -5,4 +5,5 @@ move-folders:
 ignore:
     - .pkgmeta
     - Docs
+    - Dev
     - README.md

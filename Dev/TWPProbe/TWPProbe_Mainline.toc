@@ -1,0 +1,9 @@
+## Interface: 16001
+## Title: TWP Probe (dev)
+## Notes: Dev-only. Records Forever profession API facts for Timber's Wider Professions.
+## Author: Timberwind-DreamscytheUS
+## Version: v2026.09.21e
+## SavedVariables: TWPProbeDB
+## X-TWPProbe-TOC: Mainline
+
+TWPProbe.lua
