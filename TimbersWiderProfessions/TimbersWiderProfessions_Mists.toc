@@ -9,9 +9,9 @@
 ## Category: Timber's AddOns
 ## iconTexture: Interface\Icons\Trade_engineering
 
+Src/main.lua
 Src/CategoryList.lua
 Src/CraftFrame.lua
 Src/Localization.lua
-Src/main.lua
 Src/Options.lua
 Src/TradeSkillFrame.lua
