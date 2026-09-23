@@ -1930,3 +1930,5 @@ local SkillLevels = {
 	[11343] = {280, 325, 350, 375 },
 	[25347] = {300, 300, 325, 350 },
 };
+
+main.SkillLevels = SkillLevels
