@@ -1,5 +1,5 @@
 local ADDON_NAME = ...
-local main = CreateFrame("Frame", "TimbersWiderProfessionsAddon")
+local main = TimbersWiderProfessionsAddon -- created in Core.lua
 local closedHeaders = {}
 main.selectedSkill = nil
 main.canRankUp = true
@@ -359,6 +359,7 @@ end
 
 function main:CraftTradeSkillFrame()
     CraftTradeSkillFrame = CreateFrame("Frame", "CraftTradeSkillFrame", UIParent, "PortraitFrameTemplate")
+    main.window = CraftTradeSkillFrame -- Options.lua scales whichever window the client uses.
     local savedHeight = TimbersWiderProfessions_DB.windowHeight or 426
     CraftTradeSkillFrame:SetSize(650, savedHeight)
     CraftTradeSkillFrame:SetPoint("CENTER")

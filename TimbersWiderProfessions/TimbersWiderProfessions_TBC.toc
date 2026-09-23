@@ -9,6 +9,8 @@
 ## Category: Timber's AddOns
 ## iconTexture: Interface\Icons\Trade_engineering
 
+Src/Core.lua
+Src/Compat.lua
 Src/main.lua
 Lists/TBC.lua
 Src/CategoryList.lua
