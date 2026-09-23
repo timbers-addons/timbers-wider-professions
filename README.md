@@ -39,3 +39,7 @@ Not just for professions, this new, wider window brings the fun to every skill!
 ### Localization
 
 Similar to the original addon, this addon features localization in multiple languages: English, Spanish (EU or MX), German, and French. More to come soon!
+
+### WoW: Forever
+
+On WoW: Forever the addon replaces the crafting page of the new profession window with its own: the same window frame and painted art, but with the skill-level brackets on every recipe, three ways to list recipes (Blizzard's categories, one list by skill level, one list alphabetical) with Favorites always on top, a search box that also matches reagents, adjustable height, and an enchant target slot so you can enchant your own gear without opening your bags. Profession tabs sit on the right edge; the Skills tab shows Blizzard's overview page. It also works around a Forever bug where opening one profession sometimes opened another.

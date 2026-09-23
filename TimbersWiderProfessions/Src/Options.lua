@@ -1,9 +1,11 @@
 local main = TimbersWiderProfessionsAddon
-local ALCHEMY_NAME = GetSpellInfo(2259) or "Alchemy" -- Alchemy spell id
-local COOKING_NAME = GetSpellInfo(2550) or "Cooking" -- Cooking spell id
-local ENCHANTING_NAME = GetSpellInfo(7412) or "Enchanting" -- Enchanting spell id
-local PET_TRAINING_NAME = GetSpellInfo(5149) or "Beast Training" -- Beast Training spell id
-local buildVersion = select(4, GetBuildInfo())
+local Compat = main.Compat
+local ALCHEMY_NAME = Compat.GetSpellName(2259) or "Alchemy" -- Alchemy spell id
+local COOKING_NAME = Compat.GetSpellName(2550) or "Cooking" -- Cooking spell id
+local ENCHANTING_NAME = Compat.GetSpellName(7412) or "Enchanting" -- Enchanting spell id
+local PET_TRAINING_NAME = Compat.GetSpellName(5149) or "Beast Training" -- Beast Training spell id
+-- The category and poison options only apply to the Classic window.
+local isPreCata = Compat.IsPreCata
 
 local defaultVariables = {
     favorites = {},
@@ -21,6 +23,7 @@ local defaultVariables = {
     sortRoguePoisons = false,
     windowScale = 100,
     windowHeight = 426,
+    listMode = "blizzard", -- Forever window: "blizzard", "level" or "alpha"
 }
 
 function main:GetDefaultVariables()
@@ -50,8 +53,10 @@ function main:CreateSettingsFrame()
         local function SetValue(value)
             TimbersWiderProfessions_DB[variableName] = value
             -- Open the frame to test the scale immediately.
-            CraftTradeSkillFrame:SetScale(value / 100)
-            CraftTradeSkillFrame:Show()
+            if main.window then
+                main.window:SetScale(value / 100)
+                main.window:Show()
+            end
         end
 
         local setting = Settings.RegisterProxySetting(category, variableName, type(defaultValue), text, defaultValue, GetValue, SetValue)
@@ -85,7 +90,7 @@ function main:CreateSettingsFrame()
         Settings.CreateDropdown(category, setting, GetOptions, tooltipText)
     end
 
-    if buildVersion < 40000 then
+    if isPreCata then
         layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(main.ClientLocale.AdditionalCategories, main.ClientLocale.AdditionalCategoriesTooltip))
         createCheckBox(ALCHEMY_NAME, "showAlchemyCategories", main.ClientLocale.AddAlchemyTooltip)
         createCheckBox(COOKING_NAME, "showCookingCategories", main.ClientLocale.AddCookingTooltip)
@@ -99,12 +104,30 @@ function main:CreateSettingsFrame()
     end
 
     layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(BINDING_HEADER_MISC))
+    if Compat.HasRecipeAPI then
+        local listModeDefault = defaultVariables.listMode
+        local function GetValue()
+            return TimbersWiderProfessions_DB.listMode or listModeDefault
+        end
+        local function SetValue(value)
+            main:SetListMode(value)
+        end
+        local setting = Settings.RegisterProxySetting(category, "listMode", type(listModeDefault), main.ClientLocale.ListMode, listModeDefault, GetValue, SetValue)
+        local function GetOptions()
+            local container = Settings.CreateControlTextContainer()
+            container:Add("blizzard", main.ClientLocale.ListBlizzard)
+            container:Add("level", main.ClientLocale.ListByLevel)
+            container:Add("alpha", main.ClientLocale.ListAlphabetical)
+            return container:GetData()
+        end
+        Settings.CreateDropdown(category, setting, GetOptions, main.ClientLocale.ListModeTooltip)
+    end
     createDropdown(main.ClientLocale.SkillColors, "skillColorMode", main.ClientLocale.SkillColorsTooltip, {
         { value = "difficulty", label = main.ClientLocale.ColorByDifficulty },
         { value = "rarity", label = main.ClientLocale.ColorByRarity },
     })
     createCheckBox(main.ClientLocale.ShowSkillLevelsInList, "showSkillLevelsInList", main.ClientLocale.ShowSkillLevelsInListTooltip)
-    if buildVersion < 40000 then
+    if isPreCata then
         createCheckBox(main.ClientLocale.ShowAlternateRanks, "showAlternateRanks", main.ClientLocale.ShowAlternateRanksTooltip)
     end
     do
@@ -140,7 +163,7 @@ function main:CreateSettingsFrame()
             end)
         end
     end
-    if buildVersion < 40000 then
+    if isPreCata then
         createCheckBox(main.ClientLocale.SortPoisons, "sortRoguePoisons", main.ClientLocale.SortPoisonsTooltip)
     end
     createSlider(main.ClientLocale.WindowScale, "windowScale", main.ClientLocale.WindowScaleTooltip, 50, 300, 5)
@@ -152,7 +175,7 @@ function main:CreateSettingsFrame()
         end
         local function SetValue(value)
             TimbersWiderProfessions_DB.windowHeight = value
-            main:SetWindowHeight(value)
+            if main.SetWindowHeight then main:SetWindowHeight(value) end
         end
         local setting = Settings.RegisterProxySetting(category, "windowHeight", type(heightDefault), main.ClientLocale.WindowHeight, heightDefault, GetValue, SetValue)
         local options = Settings.CreateSliderOptions(426, 800, 10)

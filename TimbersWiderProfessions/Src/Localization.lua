@@ -77,6 +77,19 @@ localeDict["Special"] = "Special"
 localeDict["Utility"] = "Utility"
 localeDict["AllPetsCanLearn"] = "All pets can learn this ability."
 localeDict["PetUnknownTooltip"] = "This information has not yet been discovered. Train and learn from different pets to uncover which beasts can use this skill."
+-- Forever window
+localeDict["ListMode"] = "Recipe List"
+localeDict["ListModeTooltip"] = "How the recipe list is grouped and sorted. Favorites always come first."
+localeDict["ListBlizzard"] = "Blizzard categories"
+localeDict["ListByLevel"] = "By skill level"
+localeDict["ListAlphabetical"] = "Alphabetical"
+localeDict["Link"] = "Link"
+localeDict["EnchantTarget"] = "Enchant target"
+localeDict["EnchantTargetNone"] = "Click to choose an item"
+localeDict["EnchantTargetTooltip"] = "Left-click to pick an item from your bags or equipped gear. Right-click to clear."
+localeDict["EnchantTargetNoItems"] = "No item you carry can take this enchant."
+localeDict["WrongProfession"] = "You opened %s but the game opened %s (a Blizzard bug)."
+localeDict["OpenInstead"] = "Open %s instead"
 
 ----------------------------------------------------------------
 main.Locales["deDE"] = {}
