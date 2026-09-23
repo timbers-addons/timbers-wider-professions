@@ -9,7 +9,10 @@ local frame = CreateFrame("Frame")
 local db
 local registered = {}
 
-local function say(msg)
+-- /twpprobe quiet toggles the chat output; recording carries on either way.
+-- The flag is its own saved variable so it outlives the per-session TWPProbeDB.
+local function say(msg, force)
+    if TWPProbeQuiet and not force then return end
     print("|cff33ff99TWPProbe|r: " .. msg)
 end
 
@@ -729,7 +732,7 @@ local function report()
             say(("%s: learned=%s unlearned=%s difficulty{%s}"):format(name, tostring(scan.numLearned), tostring(scan.numUnlearned), table.concat(parts, " ")))
         end
     end
-    say("commands: /twpprobe scan | craft | ghost | opens | open [name] | cast [name] | enchant | autoreplace. /reload saves.")
+    say("commands: /twpprobe scan | craft | ghost | opens | open [name] | cast [name] | enchant | autoreplace | quiet. /reload saves.")
 end
 
 -- Wiring ----------------------------------------------------------------------------
@@ -805,6 +808,9 @@ SlashCmdList["TWPPROBE"] = function(msg)
         showCastButton(arg or "")
     elseif msg == "enchant" then
         showEnchantButtons(arg or "")
+    elseif msg == "quiet" then
+        TWPProbeQuiet = not TWPProbeQuiet
+        say("chat output " .. (TWPProbeQuiet and "OFF (recording continues; /twpprobe quiet to turn it back on)" or "ON"), true)
     elseif msg == "autoreplace" then
         db.autoReplace = not db.autoReplace
         say("auto-accept the replace-enchant popup: " .. (db.autoReplace and "ON" or "OFF"))
