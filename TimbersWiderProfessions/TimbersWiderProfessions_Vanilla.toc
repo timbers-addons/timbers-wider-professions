@@ -2,7 +2,7 @@
 ## Title: Timber's Wider Professions
 ## Notes: Expanded profession/tradeskill window with new features but still as vanilla as possible.
 ## Author: zeratoruspatokus, Timberwind-DreamscytheUS
-## Version: v2026.09.21
+## Version: v2026.09.23a
 ## DefaultState: enabled
 ## SavedVariablesPerCharacter: TimbersWiderProfessions_DB
 ## X-License: gpl-3.0-only
